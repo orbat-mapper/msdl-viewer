@@ -7,6 +7,8 @@ import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import MaplibreMap from "@/components/MaplibreMap.vue";
 import MapLogic from "@/components/MapLogic.vue";
+import { useLayerStore } from "@/stores/layerStore.ts";
+const store = useLayerStore();
 
 const mlMap = shallowRef<maplibregl.Map>();
 
@@ -16,10 +18,14 @@ async function getData() {
   // const url = "/examples/SampleMSDL.xml";
   // const url = "/examples/example3.xml";
   try {
+    store.layers.clear();
     const response = await fetch(url);
     const msdlAsText = await response.text();
     msdl.value = MilitaryScenario.createFromString(msdlAsText);
     msdl.value.primarySide = msdl.value.sides[2];
+    msdl.value.sides.forEach((side) => {
+      store.layers.add(side.objectHandle);
+    });
   } catch (error) {
     console.error("Error fetching data:", error);
   }
@@ -33,53 +39,14 @@ const sides = computed(() => {
 
 function onMapReady(map: maplibregl.Map) {
   mlMap.value = map;
-  // for (const side of sides.value) {
-  //   map.addSource(side.objectHandle, {
-  //     type: "geojson",
-  //     data: side.toGeoJson(),
-  //   });
-  //   map.addLayer({
-  //     id: side.objectHandle,
-  //     type: "symbol",
-  //     source: side.objectHandle,
-  //     layout: {
-  //       "icon-image": ["get", "sidc"],
-  //       "text-field": ["get", "label"],
-  //       "text-font": ["Noto Sans Italic"],
-  //       "text-offset": [0, 1.25],
-  //       "text-anchor": "top",
-  //       "text-size": 12,
-  //       "icon-allow-overlap": true,
-  //       "text-allow-overlap": true,
-  //     },
-  //   });
-  //   map.on("click", side.objectHandle, (e) => {
-  //     if (!e.features) return;
-  //     const coordinates = e.features[0].geometry.coordinates.slice();
-  //     const labels = e.features.map((f) => f.properties.label).join(", ");
-  //
-  //     // Ensure that if the map is zoomed out such that multiple
-  //     // copies of the feature are visible, the popup appears
-  //     // over the copy being pointed to.
-  //     while (Math.abs(e.lngLat.lng - coordinates[0]) > 180) {
-  //       coordinates[0] += e.lngLat.lng > coordinates[0] ? 360 : -360;
-  //     }
-  //
-  //     new maplibregl.Popup({ className: "text-black" })
-  //       .setLngLat(coordinates)
-  //       .setText(labels)
-  //       .addTo(map);
-  //   });
-  // }
-  // map.addSource("sides", {
-  //   type: "geojson",
-  //   data: combineSidesToJson(sides.value),
-  // });
 }
 </script>
 <template>
   <main class="h-full w-full flex">
-    <SidePanel :sides="sides" class="w-96 px-2 border rounded-md ml-2 flex-none hidden sm:block" />
+    <SidePanel
+      :sides="sides"
+      class="w-96 px-2 border rounded-md ml-2 flex-none hidden sm:block overflow-auto"
+    />
     <div id="map" class="flex-auto h-full">
       <MaplibreMap @ready="onMapReady" />
     </div>

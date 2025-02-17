@@ -9,7 +9,17 @@ import type { ForceSide } from "@orbat-mapper/msdllib";
 import MilSymbol from "@/components/MilSymbol.vue";
 import { ChevronDownIcon } from "@radix-icons/vue";
 import { Switch } from "@/components/ui/switch";
+import { useLayerStore } from "@/stores/layerStore.ts";
 defineProps<{ sides: ForceSide[] }>();
+const store = useLayerStore();
+
+const toggleSide = (id: string) => {
+  if (store.layers.has(id)) {
+    store.layers.delete(id);
+  } else {
+    store.layers.add(id);
+  }
+};
 </script>
 
 <template>
@@ -19,7 +29,11 @@ defineProps<{ sides: ForceSide[] }>();
         ><span class="font-medium">{{ side.name }}</span>
         <template #icon>
           <div class="flex items-center gap-2">
-            <Switch @click.stop checked />
+            <Switch
+              @click.stop
+              :checked="store.layers.has(side.objectHandle)"
+              @update:checked="toggleSide(side.objectHandle)"
+            />
             <ChevronDownIcon
               class="h-4 w-4 shrink-0 text-muted-foreground transition-transform duration-200"
             />

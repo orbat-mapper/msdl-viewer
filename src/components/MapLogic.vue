@@ -1,14 +1,23 @@
 <script setup lang="ts">
-import maplibregl, { Map as MlMap } from "maplibre-gl";
+import maplibregl, { GeoJSONSource, Map as MlMap } from "maplibre-gl";
 import { type ForceSide, MilitaryScenario } from "@orbat-mapper/msdllib";
 import ms from "milsymbol";
-import { computed } from "vue";
+import { computed, watch } from "vue";
 import { sortBy } from "@/utils.ts";
-
+import { useLayerStore } from "@/stores/layerStore.ts";
+const store = useLayerStore();
 const props = defineProps<{ mlMap: MlMap; scenario: MilitaryScenario }>();
 
 const sides = computed(() => {
   return sortBy(props.scenario.sides ?? [], "name").filter((side) => side.rootUnits.length > 0);
+});
+
+watch(store.layers, () => {
+  console.log(store.layers);
+  const source = props.mlMap.getSource("sides") as GeoJSONSource;
+  if (!source) return;
+  const visibleSides = sides.value.filter((side) => store.layers.has(side.objectHandle));
+  source.setData(combineSidesToJson(visibleSides) as never);
 });
 
 function combineSidesToJson(sides: ForceSide[]) {
@@ -21,7 +30,7 @@ function combineSidesToJson(sides: ForceSide[]) {
 function addSidesToMap(map: MlMap) {
   map.addSource("sides", {
     type: "geojson",
-    data: combineSidesToJson(sides.value),
+    data: combineSidesToJson(sides.value) as never,
   });
 
   map.on("styleimagemissing", function (e) {
@@ -35,6 +44,7 @@ function addSidesToMap(map: MlMap) {
       map.addImage(e.id, data, { pixelRatio: 2 });
     }
   });
+
   map.addLayer({
     id: "sides",
     type: "symbol",
@@ -55,6 +65,10 @@ function addSidesToMap(map: MlMap) {
   // location of the feature, with description HTML from its properties.
   map.on("click", "sides", (e) => {
     if (!e.features) return;
+
+    if (e.features[0].geometry.type !== "Point") {
+      return;
+    }
     const coordinates = e.features[0].geometry.coordinates.slice();
     const labels = e.features.map((f) => f.properties.label).join(", ");
 
@@ -66,7 +80,7 @@ function addSidesToMap(map: MlMap) {
     }
 
     new maplibregl.Popup({ className: "text-black" })
-      .setLngLat(coordinates)
+      .setLngLat(coordinates as [number, number])
       .setText(labels)
       .addTo(map);
   });
