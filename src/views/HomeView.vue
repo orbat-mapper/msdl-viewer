@@ -8,6 +8,8 @@ import "maplibre-gl/dist/maplibre-gl.css";
 import MaplibreMap from "@/components/MaplibreMap.vue";
 import MapLogic from "@/components/MapLogic.vue";
 import { useLayerStore } from "@/stores/layerStore.ts";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 const store = useLayerStore();
 
 const mlMap = shallowRef<maplibregl.Map>();
@@ -43,10 +45,13 @@ function onMapReady(map: maplibregl.Map) {
 </script>
 <template>
   <main class="h-full w-full flex">
-    <SidePanel
-      :sides="sides"
-      class="w-96 px-2 border rounded-md ml-2 flex-none hidden sm:block overflow-auto"
-    />
+    <aside class="w-96 px-2 border rounded-md flex-none hidden sm:block overflow-auto">
+      <SidePanel :sides="sides" class="" />
+      <div class="flex items-center space-x-2 mt-4">
+        <Switch id="show-mode" v-model:checked="store.showIconAnchors" />
+        <Label for="show-mode">Show icon anchors</Label>
+      </div>
+    </aside>
     <div id="map" class="flex-auto h-full">
       <MaplibreMap @ready="onMapReady" />
     </div>

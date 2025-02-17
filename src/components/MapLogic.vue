@@ -13,12 +13,33 @@ const sides = computed(() => {
 });
 
 watch(store.layers, () => {
-  console.log(store.layers);
   const source = props.mlMap.getSource("sides") as GeoJSONSource;
   if (!source) return;
   const visibleSides = sides.value.filter((side) => store.layers.has(side.objectHandle));
   source.setData(combineSidesToJson(visibleSides) as never);
 });
+
+watch(
+  () => store.showIconAnchors,
+  (v) => {
+    const mlMap = props.mlMap;
+    const hasLayer = !!mlMap.getLayer("points");
+    if (!v) {
+      if (hasLayer) mlMap.removeLayer("points");
+    } else {
+      if (hasLayer) return;
+      mlMap.addLayer({
+        id: "points",
+        type: "circle",
+        source: "sides",
+        paint: {
+          "circle-radius": 5,
+          "circle-color": "#3b4fe4",
+        },
+      });
+    }
+  },
+);
 
 function combineSidesToJson(sides: ForceSide[]) {
   return {
