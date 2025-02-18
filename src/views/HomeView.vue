@@ -10,6 +10,7 @@ import MapLogic from "@/components/MapLogic.vue";
 import { useLayerStore } from "@/stores/layerStore.ts";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
 const store = useLayerStore();
 
 const mlMap = shallowRef<maplibregl.Map>();
@@ -42,14 +43,31 @@ const sides = computed(() => {
 function onMapReady(map: maplibregl.Map) {
   mlMap.value = map;
 }
+
+function toggleLayers() {
+  if (store.layers.size >= sides.value.length) {
+    store.layers.clear();
+    return;
+  }
+  sides.value.forEach((side) => {
+    store.layers.add(side.objectHandle);
+  });
+}
 </script>
 <template>
   <main class="h-full w-full flex">
     <aside class="w-96 px-2 border rounded-md flex-none hidden sm:block overflow-auto">
       <SidePanel :sides="sides" class="" />
-      <div class="flex items-center space-x-2 mt-4">
-        <Switch id="show-mode" v-model:checked="store.showIconAnchors" />
-        <Label for="show-mode">Show icon anchors</Label>
+
+      <div>
+        <h4 class="text-sm font-bold mt-2">Tools</h4>
+        <div class="flex items-center space-x-2 mt-4">
+          <Switch id="show-mode" v-model:checked="store.showIconAnchors" />
+          <Label for="show-mode">Show icon anchors</Label>
+        </div>
+        <div class="mt-4">
+          <Button variant="secondary" @click="toggleLayers()">Toggle layers</Button>
+        </div>
       </div>
     </aside>
     <div id="map" class="flex-auto h-full">
