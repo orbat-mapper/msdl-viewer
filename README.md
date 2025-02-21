@@ -1,7 +1,7 @@
 # MSDL viewer
 
 A basic viewer for Military Scenario Definition Language (MSDL) files. A companion project
-to [msdlib](https://github.com/orbat-mapper/msdllib). Try the live demo at https://msdl-viewer.pages.dev.
+to [msdllib](https://github.com/orbat-mapper/msdllib). Try the live demo at https://msdl-viewer.pages.dev.
 
 ## Project Setup
 
