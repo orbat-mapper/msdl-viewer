@@ -19,9 +19,11 @@ watch(store.layers, () => {
   if (!source) return;
   const visibleSides = sides.value.filter((side) => store.layers.has(side.objectHandle));
   const featureCollection = combineSidesToJson(visibleSides);
-  const center = centroid(featureCollection as never);
-  source.setData(combineSidesToJson(visibleSides) as never);
-  props.mlMap.flyTo({ center: center.geometry.coordinates as [number, number], zoom: 3 });
+  source.setData(featureCollection as never);
+  // try {
+  //   const center = centroid(featureCollection as never);
+  //   props.mlMap.flyTo({ center: center.geometry.coordinates as [number, number], zoom: 3 });
+  // } catch {}
 });
 
 watch(
@@ -55,13 +57,14 @@ function combineSidesToJson(sides: ForceSide[]) {
 
 function addSidesToMap(map: MlMap) {
   const featureCollection = combineSidesToJson(sides.value);
-  const center = centroid(featureCollection as never);
   map.addSource("sides", {
     type: "geojson",
     data: featureCollection as never,
   });
-
-  map.flyTo({ center: center.geometry.coordinates as [number, number], zoom: 3 });
+  try {
+    const center = centroid(featureCollection as never);
+    map.flyTo({ center: center.geometry.coordinates as [number, number], zoom: 3 });
+  } catch {}
 
   map.on("styleimagemissing", function (e) {
     const symb = new ms.Symbol(e.id, { size: 20 });
