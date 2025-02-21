@@ -1,20 +1,18 @@
-# msdl-viewer
+# MSDL viewer
 
-This template should help get you started developing with Vue 3 in Vite.
-
-## Recommended IDE Setup
-
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
-
-## Type Support for `.vue` Imports in TS
-
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
+A basic viewer for Military Scenario Definition Language (MSDL) files. A companion project
+to [msdlib](https://github.com/orbat-mapper/msdllib). Try the live demo at https://msdl-viewer.pages.dev.
 
 ## Project Setup
+
+### Clone the Repository
+
+```sh
+git clone https://github.com/orbat-mapper/msdl-viewer.git
+cd msdl-viewer
+```
+
+### Install Dependencies
 
 ```sh
 npm install
@@ -30,10 +28,4 @@ npm run dev
 
 ```sh
 npm run build
-```
-
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-npm run lint
 ```
