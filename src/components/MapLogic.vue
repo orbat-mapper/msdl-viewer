@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import maplibregl, { GeoJSONSource, Map as MlMap } from "maplibre-gl";
+import { centroid } from "@turf/centroid";
 import { type ForceSide, MilitaryScenario } from "@orbat-mapper/msdllib";
 import ms from "milsymbol";
 import { computed, watch } from "vue";
 import { sortBy } from "@/utils.ts";
 import { useLayerStore } from "@/stores/layerStore.ts";
+
 const store = useLayerStore();
 const props = defineProps<{ mlMap: MlMap; scenario: MilitaryScenario }>();
 
@@ -16,7 +18,10 @@ watch(store.layers, () => {
   const source = props.mlMap.getSource("sides") as GeoJSONSource;
   if (!source) return;
   const visibleSides = sides.value.filter((side) => store.layers.has(side.objectHandle));
+  const featureCollection = combineSidesToJson(visibleSides);
+  const center = centroid(featureCollection as never);
   source.setData(combineSidesToJson(visibleSides) as never);
+  props.mlMap.flyTo({ center: center.geometry.coordinates as [number, number], zoom: 3 });
 });
 
 watch(
@@ -49,10 +54,14 @@ function combineSidesToJson(sides: ForceSide[]) {
 }
 
 function addSidesToMap(map: MlMap) {
+  const featureCollection = combineSidesToJson(sides.value);
+  const center = centroid(featureCollection as never);
   map.addSource("sides", {
     type: "geojson",
-    data: combineSidesToJson(sides.value) as never,
+    data: featureCollection as never,
   });
+
+  map.flyTo({ center: center.geometry.coordinates as [number, number], zoom: 3 });
 
   map.on("styleimagemissing", function (e) {
     const symb = new ms.Symbol(e.id, { size: 20 });
