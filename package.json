@@ -16,7 +16,7 @@
     "@orbat-mapper/msdllib": "^0.3.0",
     "@radix-icons/vue": "^1.0.0",
     "@turf/turf": "^7.2.0",
-    "@vueuse/core": "^12.5.0",
+    "@vueuse/core": "^12.7.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "maplibre-gl": "^5.1.0",

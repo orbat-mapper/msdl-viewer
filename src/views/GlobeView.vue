@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import LoadScenarioPanel from "@/components/LoadScenarioPanel.vue";
 import { useToggle } from "@vueuse/core";
 import { DoubleArrowLeftIcon } from "@radix-icons/vue";
+import LoadFromUrl from "@/components/LoadFromUrl.vue";
 
 const store = useLayerStore();
 
@@ -82,7 +83,7 @@ function toggleLayers() {
         <span class="sr-only">Toggle theme</span>
       </Button>
       <SidePanel :sides="sides" class="" />
-      <div>
+      <div v-if="msdl">
         <h4 class="text-sm font-bold mt-2">Tools</h4>
         <div class="flex items-center space-x-2 mt-4">
           <Switch id="show-mode" v-model:checked="store.showIconAnchors" />
@@ -93,6 +94,9 @@ function toggleLayers() {
         </div>
       </div>
       <LoadScenarioPanel class="mt-4" @loaded="loadScenario" />
+      <div class="mt-4">
+        <LoadFromUrl @loaded="loadScenario" />
+      </div>
     </aside>
     <div id="map" class="flex-auto h-full z-0">
       <MaplibreMap @ready="onMapReady" />

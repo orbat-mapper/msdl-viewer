@@ -7,3 +7,13 @@ export function sortBy<T extends object, K extends keyof T>(arr: T[], key: K, as
     }
   });
 }
+
+export function isUrl(str: string) {
+  try {
+    new URL(str);
+  } catch (_) {
+    return false;
+  }
+
+  return true;
+}
