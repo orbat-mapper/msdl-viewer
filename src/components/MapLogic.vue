@@ -119,3 +119,4 @@ function addSidesToMap(map: MlMap) {
 
 addSidesToMap(props.mlMap);
 </script>
+<template><slot /></template>

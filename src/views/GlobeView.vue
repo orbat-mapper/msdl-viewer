@@ -11,9 +11,14 @@ import { useLayerStore } from "@/stores/layerStore.ts";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import LoadScenarioPanel from "@/components/LoadScenarioPanel.vue";
+import { useToggle } from "@vueuse/core";
+import { DoubleArrowLeftIcon } from "@radix-icons/vue";
+
 const store = useLayerStore();
 
 const mlMap = shallowRef<maplibregl.Map>();
+const [showSidebar, toggleSidebar] = useToggle(true);
 
 const msdl = ref<MilitaryScenario>();
 async function getData() {
@@ -34,7 +39,16 @@ async function getData() {
   }
 }
 
-getData();
+// getData();
+
+function loadScenario(scenario: MilitaryScenario) {
+  store.layers.clear();
+  msdl.value = scenario;
+  msdl.value.primarySide = msdl.value.sides[2];
+  msdl.value.sides.forEach((side) => {
+    store.layers.add(side.objectHandle);
+  });
+}
 
 const sides = computed(() => {
   return sortBy(msdl.value?.sides ?? [], "name").filter((side) => side.rootUnits.length > 0);
@@ -56,9 +70,18 @@ function toggleLayers() {
 </script>
 <template>
   <main class="h-full w-full flex">
-    <aside class="w-96 px-2 border rounded-md flex-none hidden sm:block overflow-auto">
+    <aside class="w-64 sm:w-96 px-2 border rounded-md flex-none overflow-auto" v-if="showSidebar">
+      <Button
+        variant="outline"
+        @click="toggleSidebar()"
+        size="icon"
+        title="Toggle sidebar"
+        class="mt-2"
+      >
+        <DoubleArrowLeftIcon class="size-4" />
+        <span class="sr-only">Toggle theme</span>
+      </Button>
       <SidePanel :sides="sides" class="" />
-
       <div>
         <h4 class="text-sm font-bold mt-2">Tools</h4>
         <div class="flex items-center space-x-2 mt-4">
@@ -66,13 +89,20 @@ function toggleLayers() {
           <Label for="show-mode">Show icon anchors</Label>
         </div>
         <div class="mt-4">
-          <Button variant="secondary" @click="toggleLayers()">Toggle layers</Button>
+          <Button variant="secondary" @click="toggleLayers()">Toggle layers visibility</Button>
         </div>
       </div>
+      <LoadScenarioPanel class="mt-4" @loaded="loadScenario" />
     </aside>
-    <div id="map" class="flex-auto h-full">
+    <div id="map" class="flex-auto h-full z-0">
       <MaplibreMap @ready="onMapReady" />
     </div>
     <MapLogic v-if="mlMap && msdl" :mlMap="mlMap" :scenario="msdl" />
+    <div v-if="!showSidebar" class="fixed top-2 left-2" title="Toggle sidebar">
+      <Button variant="outline" @click="toggleSidebar()" size="icon">
+        <DoubleArrowLeftIcon class="size-4 rotate-180" />
+        <span class="sr-only">Toggle theme</span>
+      </Button>
+    </div>
   </main>
 </template>
