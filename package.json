@@ -13,7 +13,7 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
-    "@orbat-mapper/msdllib": "^0.3.0",
+    "@orbat-mapper/msdllib": "^0.4.0",
     "@radix-icons/vue": "^1.0.0",
     "@turf/turf": "^7.2.0",
     "@vueuse/core": "^12.7.0",
